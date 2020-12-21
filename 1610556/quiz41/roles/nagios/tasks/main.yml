@@ -1,0 +1,95 @@
+---
+# tasks file for roles/nagios
+  - name: Installing pre-requisite packages
+    apt:
+      name:
+        - autoconf
+        - gcc
+        - libc6
+        - make
+        - wget
+        - unzip
+        - apache2
+        - php
+        - libapache2-mod-php7.4
+        - libgd-dev
+      state: latest
+      update_cache: yes
+
+  - name: dl the source
+    unarchive:
+      src: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.5.tar.gz
+      dest: /tmp/
+      remote_src: yes
+    register: nagios_download
+
+  - name: compiling src
+    shell: cd /tmp/nagioscore-nagios-4.4.5; sh /tmp/nagioscore-nagios-4.4.5/configure --with-httpd-conf=/etc/apache2/sites-enabled
+    when: nagios_download.changed
+
+  - name: compile build all
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: all
+
+  - name: Creating make groups-user
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install-groups-users
+ 
+  - name: Adding www-data user
+    user:
+      name: www-data
+      group: nagios
+      append: yes
+
+  - name: Installing bonaries
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install
+
+  - name: Installing Service / Daemon
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install-daemoninit
+
+  - name: Installing command mode
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install-commandmode
+
+  - name: Installing configuuration files
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install-config
+
+  - name: Installing Apache config files
+    make:
+      chdir: /tmp/nagioscore-nagios-4.4.5/
+      target: install-webconf
+    register: install_webconf
+
+  - name: a2enmod rewrite
+    shell: a2enmod rewrite
+    when: install_webconf.changed
+
+  - name: a2enmod cgi
+    shell: a2enmod cgi
+    when: install_webconf.changed
+
+  - name: stopping firewall
+    service:
+      name: ufw
+      state: stopped
+      enabled: no
+
+  - name: Start apache web server
+    service:
+      name: apache2
+      state: restarted
+
+  - name: Start Nagios
+    service:
+      name: nagios
+      state: started  
+

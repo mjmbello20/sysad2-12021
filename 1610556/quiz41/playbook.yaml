@@ -1,0 +1,7 @@
+---
+  - name: install nagios
+    hosts: ubuntu
+    tasks:
+    - name: install nagios using nagios role
+      include_role:
+        name: nagios
