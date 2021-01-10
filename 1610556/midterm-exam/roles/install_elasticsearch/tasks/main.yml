@@ -1,0 +1,64 @@
+---
+# tasks file for roles/install_elasticsearch
+
+  - name: Install dependencies
+    apt:
+      name:
+        - openjdk-11-jdk
+        - nginx
+        - apt-transport-https
+      state: latest
+      update_cache: yes
+
+  - name: Adding elasticsearch's apt key
+    apt_key:
+      url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+      state: present
+
+  - name: Adding elasticsearch repo -s
+    shell: echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+
+  - name: Updating package list
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+
+  - name: Installing Elasticseach
+    apt:
+      name: elasticsearch
+      update_cache: yes
+
+  - name: Updating configuration
+    lineinfile:
+      destfile: /etc/elasticsearch/elasticsearch.yml
+      regexp: 'network.host'
+      line: 'network.host: localhost'
+
+  - name: Update port in configuration file
+    lineinfile:
+      destfile: /etc/elasticsearch/elasticsearch.yml
+      regexp: 'http.port:'
+      line: 'http.port: 9200'
+
+  - name: Creating service drop-in config directory
+    file:
+      path: /etc/systemd/system/elasticsearch.service.d
+      state: directory
+      mode: '0755'
+
+  - name: Defining TimeoutStartsec
+    shell: echo "[Service]\nTimeoutStartSec=180" | sudo tee /etc/systemd/system/elasticsearch.service.d/startup-timeout.conf
+
+  - name: Reloading daemon
+    shell: systemctl daemon-reload
+
+  - name: Stopping ufw
+    service:
+      name: ufw
+      state: stopped
+
+  - name: Starting Elasticsearch
+    service:
+      name: elasticsearch
+      state: started
+
