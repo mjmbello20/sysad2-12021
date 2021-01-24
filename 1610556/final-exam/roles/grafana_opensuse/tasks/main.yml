@@ -1,0 +1,19 @@
+---
+# tasks file for roles/grafana_opensuse
+
+- name: Install Grafana
+  zypper:
+    name: 'https://download.opensuse.org/repositories/openSUSE:/Factory/standard/x86_64/grafana-7.3.1-1.1.x86_64.rpm'
+    state: present
+
+- name: Start Grafana Service
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Stop Firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no

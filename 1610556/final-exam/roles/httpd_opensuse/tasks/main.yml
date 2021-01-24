@@ -1,0 +1,41 @@
+---
+# tasks file for roles/httpd_opensuse
+
+- name: Installing Apache2
+  zypper:
+    name:
+      - apache2
+      - apache2-prefork
+      - apache2-utils
+      - libapr1
+      - libapr-util1
+      - libgc1
+      - system-user-wwwrun
+      - w3m
+    state: latest
+    update_cache: yes
+
+- name: Start Apache2 Service
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: Adjusting the Firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Copy index.html from Files Folder
+  copy:
+    src: index.html
+    dest: /srv/www/htdocs/index.html
+    owner: wwwrun
+    group: wwwrun
+    mode: '0755'
+
+- name: Restart Apache2
+  service:
+    name: apache2
+    state: restarted

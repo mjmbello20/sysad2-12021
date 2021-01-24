@@ -1,0 +1,10 @@
+---
+
+# Clone Prelim Exam Repository
+git_repo: https://github.com/mjmbello20/sysad2-12021.git
+git_dest: /home/joana/prelimExam_clone
+git_version: prelim-exam
+
+
+# Username for MOTD
+username: joana

@@ -1,0 +1,26 @@
+---
+# tasks file for roles/grafana_centos
+
+- name: Add Repository
+  copy:
+    src: grafana_centos.repo
+    dest: "/etc/yum.repos.d/grafana.repo"
+    mode: '0755'
+
+- name: Install Package
+  yum:
+    name: grafana
+    state: latest
+    update_cache: yes
+
+- name: Start Service
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Stop Firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no

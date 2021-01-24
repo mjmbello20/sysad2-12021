@@ -1,0 +1,18 @@
+---
+# tasks file for roles/telegraf_opensuse
+
+- name: Install Telegraf
+  zypper:
+    name: telegraf
+    state: present
+
+- name: Start Telegraf
+  service:
+    name: telegraf
+    state: started
+
+- name: Stop Firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no

@@ -1,0 +1,100 @@
+---
+# tasks file for roles/httpd_centos
+
+- name: Install httpd
+  yum:
+    name: httpd
+    state: latest
+    update_cache: yes
+
+- name: Starting httpd service
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Stop Firewall
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Installing PCU
+  yum:
+    name: policycoreutils-python-utils
+    state: latest
+    update_cache: yes
+
+- name: Create Virtual Host
+  file:
+    path: /var/www/bello_domain_centos
+    state: directory
+    owner: joana
+    group: joana
+    mode: '0755'
+
+- name: Create Log Directory
+  file:
+    path: /var/www/bello_domain_centos/log
+    state: directory
+    owner: joana
+    group: joana
+    mode: '0755'
+
+- name: Create HTML Directory
+  file:
+    path: /var/www/bello_domain_centos/html
+    state: directory
+    owner: joana
+    group: joana
+    mode: '0755'
+
+- name: Copying index.html
+  copy:
+    src: index.html
+    dest: /var/www/bello_domain_centos/html/index.html
+    owner: joana
+    group: joana
+    mode: '0755'
+
+- name: Create sites-available
+  file:
+    path: /etc/httpd/sites-available
+    state: directory
+    mode: '0755'
+
+- name: Create sites-enabled
+  file:
+    path: /etc/httpd/sites-enabled
+    state: directory
+    mode: '0755'
+
+- name: Create httpd.conf
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    line: "IncludeOptional sites-enabled/*.conf"
+
+- name: Copy Configuration File to sites-available
+  copy:
+    src: bello_domain_centos.conf
+    dest: /etc/httpd/sites-available/bello_domain_centos.conf
+    owner: joana
+    group: joana
+    mode: '0755'
+
+- name: Link sites directory
+  file:
+    src: /etc/httpd/sites-available/bello_domain_centos.conf
+    dest: /etc/httpd/sites-enabled/bello_domain_centos.conf
+    state: link
+
+- name: Setsebool
+  seboolean:
+    name: httpd_unified
+    state: yes
+    persistent: yes
+
+- name: Restarting httpd
+  service:
+    name: httpd
+    state: restarted

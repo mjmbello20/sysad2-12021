@@ -1,0 +1,122 @@
+---
+
+  - name: 4.1 - Clone Exam Repo
+    hosts: git
+    tasks:
+      - name: Include Vars from config.yaml
+        include_vars:
+          file: config.yaml
+
+      - name: Debian Clone Repository
+        include_role:
+          name: clone_prelimExam_debian
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos-Clone Repository
+        include_role:
+          name: clone_prelimExam_centos
+        when: ansible_distribution == 'CentOS'
+
+      - name: OpenSuse - Clone Repository
+        include_role:
+          name: clone_prelimExam_opensuse
+        when: ansible_distribution == 'openSUSE Tumbleweed'
+
+
+  - name: 4.2 - Install and Configure Webserver
+    hosts: webserver
+    tasks:
+      - name: Debian - Install and Configure Webserver
+        include_role:
+          name: httpd_debian
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos - Install and Configure Webserver
+        include_role:
+          name: httpd_centos
+        when: ansible_distribution == 'CentOS'
+
+      - name: Opensuse - Install and Configure Webserver
+        include_role:
+          name: httpd_opensuse
+        when: ansible_distribution == 'openSUSE Tumbleweed'
+
+
+  - name: 4.3 - Install and Confiure Grafana
+    hosts: grafana
+    tasks:
+      - name: Debian - Grafana
+        include_role:
+          name: grafana_debian
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos - Grafana
+        include_role:
+          name: grafana_centos
+        when: ansible_distribution == 'CentOS'
+
+      - name: Opensuse - Grafana
+        include_role:
+          name: grafana_opensuse
+        when: ansible_distribution == 'openSUSE Tumbleweed'
+
+
+  - name: 4.3 - Install and Configure Telegraf
+    hosts: telegraf
+    tasks:
+      - name: Debian - Telegraf
+        include_role:
+          name: telegraf_debian
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos - Telegraf
+        include_role:
+          name: telegraf_centos
+        when: ansible_distribution == 'CentOS'
+
+      - name: Opensuse - Telegraf
+        include_role:
+          name: telegraf_opensuse
+        when: ansible_distribution == 'openSUSE Tumbleweed'
+
+
+  - name: 4.3 - Install and Configure Prometheus
+    hosts: prometheus
+    tasks:
+      - name: Debian - Prometheus
+        include_role:
+          name: prometheus_debian
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos - Prometheus
+        include_role:
+          name: prometheus_centos
+        when: ansible_distribution == 'CentOS'
+
+      - name: Opensuse - Prometheus
+        include_role:
+          name: prometheus_opensuse
+        when: ansible_distribution == 'openSUSE Tumbleweed'
+
+
+  - name: 4.4 - Changing MOTD
+    hosts: motd
+    tasks:
+      - name: Include Variables from config.yaml
+        include_vars:
+          file: config.yaml
+
+      - name: Debian - Change MOTD
+        include_role:
+          name: change_motd
+        when: ansible_distribution == 'Debian'
+
+      - name: Centos - Change MOTD
+        include_role:
+          name: change_motd
+        when: ansible_distribution == 'CentOS'
+
+      - name: Opensuse - Change MOTD
+        include_role:
+          name: change_motd
+        when: ansible_distribution == 'openSUSE Tumbleweed'
